@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from wordcloud import WordCloud
 import pandas as pd
 
 def plot_top_keywords(df_trends, n=10, save_path=None):
@@ -21,16 +20,20 @@ def plot_sentiment_distribution(df, save_path=None):
         plt.savefig(save_path)
     plt.show()
 
-def generate_wordcloud(text_series, save_path=None):
-    text = ' '.join(text_series.dropna().astype(str).tolist())
-    if not text.strip():
+def top_keyword_bar(df, text_column='processed', top_n=20, save_path=None):
+    words = ' '.join(df[text_column].dropna().astype(str).tolist()).split()
+    freq = {}
+    for w in words:
+        freq[w] = freq.get(w, 0) + 1
+    items = sorted(freq.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    if not items:
         return None
-    wc = WordCloud(width=800, height=400, collocations=False).generate(text)
-    plt.figure(figsize=(12,6))
-    plt.imshow(wc, interpolation='bilinear')
-    plt.axis('off')
+    words, counts = zip(*items)
+    plt.figure(figsize=(10,6))
+    plt.bar(words, counts)
+    plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
     if save_path:
         plt.savefig(save_path)
     plt.show()
-    return wc
+    return items

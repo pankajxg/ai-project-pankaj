@@ -3,7 +3,7 @@ import pandas as pd
 from src.data_preprocessing import load_data, preprocess_dataframe
 from src.sentiment_analysis import add_sentiment_columns
 from src.trend_detection import build_trend_table
-from src.visualization import plot_top_keywords, plot_sentiment_distribution, generate_wordcloud
+from src.visualization import plot_top_keywords, plot_sentiment_distribution, top_keyword_bar
 
 def ensure_sample_dataset(path):
     if os.path.exists(path):
@@ -34,7 +34,7 @@ def run_demo(dataset_path):
     print(trends.head(15).to_string(index=False))
     plot_top_keywords(trends, n=10)
     plot_sentiment_distribution(df)
-    generate_wordcloud(df['processed'])
+    top_keyword_bar(df, text_column='processed', top_n=20)
 
 if __name__ == "__main__":
     dataset_path = os.path.join(os.path.dirname(__file__), '..', 'dataset', 'sample_marketing_data.csv')

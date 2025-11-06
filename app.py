@@ -4,7 +4,7 @@ import pandas as pd
 from src.data_preprocessing import preprocess_dataframe, load_data
 from src.sentiment_analysis import add_sentiment_columns
 from src.trend_detection import build_trend_table
-from src.visualization import generate_wordcloud
+from src.visualization import top_keyword_bar
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Market Trend Analyzer", layout="wide")
@@ -15,7 +15,7 @@ if not os.path.exists(dataset_path):
     from src.main import ensure_sample_dataset
     ensure_sample_dataset(dataset_path)
 
-st.title("AI-Powered Market Trend Analyzer")
+st.title("AI-Powered Market Trend Analyzer (Python 3.14 compatible)")
 
 uploaded = st.file_uploader("Upload CSV with a 'text' column (optional)", type=['csv'])
 if uploaded:
@@ -33,7 +33,7 @@ df = add_sentiment_columns(df, text_column='processed')
 st.header("Sentiment Summary")
 st.write(df['sentiment_label'].value_counts())
 
-st.header("Top Keywords")
+st.header("Top Keywords (trend table)")
 trends = build_trend_table(df, text_column='processed', time_column='date', top_n=top_n)
 st.table(trends.head(top_n))
 
@@ -42,9 +42,11 @@ if topic:
     filtered = df[df['processed'].str.contains(topic, na=False)]
     st.write(filtered[['date','text','sentiment_label']].head(50))
 
-st.header("Word Cloud")
-wc = generate_wordcloud(df['processed'])
-if wc:
-    plt.imshow(wc, interpolation='bilinear')
-    plt.axis('off')
-    st.pyplot(plt)
+st.header("Top Keyword Frequency Chart")
+items = top_keyword_bar(df, text_column='processed', top_n=top_n)
+if items:
+    words, counts = zip(*items)
+    fig, ax = plt.subplots(figsize=(10,4))
+    ax.bar(words, counts)
+    ax.set_xticklabels(words, rotation=45, ha='right')
+    st.pyplot(fig)
